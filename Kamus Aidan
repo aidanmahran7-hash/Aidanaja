@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kamus Game Sambung Kata - Aidan</title>
+    <style>
+        /* Gaya Latar Belakang & Desain Web */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1f1c2c, #928dab);
+            color: #fff;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #00f2fe;
+            text-shadow: 0 0 10px rgba(0, 242, 254, 0.5);
+            margin-top: 0;
+        }
+
+        .section {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        h3 {
+            margin-top: 0;
+            color: #4facfe;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 5px;
+        }
+
+        /* Input & Tombol */
+        input, select {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin: 8px 0;
+            border-radius: 5px;
+            border: none;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            font-size: 16px;
+        }
+
+        button {
+            background: linear-gradient(to right, #00f2fe, #4facfe);
+            border: none;
+            color: white;
+            padding: 10px 15px;
+            font-size: 14px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            opacity: 0.9;
+            transform: scale(1.02);
+        }
+
+        .btn-small {
+            padding: 5px 10px;
+            font-size: 12px;
+            margin-left: 5px;
+        }
+
+        .btn-yes {
+            background: #2ecc71;
+        }
+
+        .btn-yes.done {
+            background: #7f8c8d;
+            cursor: not-allowed;
+        }
+
+        /* Tampilan Hasil Kerja */
+        .word-item {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 10px;
+            border-radius: 5px;
+            margin: 5px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 5px solid #00f2fe;
+        }
+
+        .word-item.used {
+            border-left-color: #7f8c8d;
+            opacity: 0.6;
+        }
+
+        .trap-list {
+            margin-top: 5px;
+            font-size: 13px;
+            color: #ff7675;
+            background: rgba(255, 118, 117, 0.1);
+            padding: 5px;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Kamus Game Sambung Kata</h1>
+    
+    <!-- Bagian Tambah Data (Kosong di awal, diisi oleh Aidan) -->
+    <div class="section">
+        <h3>➕ Tambah Kosakata Baru</h3>
+        <input type="text" id="newWord" placeholder="Ketik kata baru di sini...">
+        <button class="btn-small" onclick="addWord()">Tambah Kata</button>
+    </div>
+
+    <!-- Bagian Pencarian -->
+    <div class="section">
+        <h3>🔍 Pencarian Kata & Trap</h3>
+        <input type="text" id="searchKey" placeholder="Cari huruf di sini..." oninput="searchWords()">
+        <label>Tipe Pencarian:</label>
+        <select id="searchType" onchange="searchWords()">
+            <option value="awalan">Berdasarkan Awalan</option>
+            <option value="akhiran">Berdasarkan Akhiran</option>
+        </select>
+    </div>
+
+    <!-- Tempat Hasil Pencarian Muncul -->
+    <div class="section">
+        <h3>📋 Hasil Pencarian</h3>
+        <div id="resultContainer">
+            <p style="color: #bbb; font-style: italic;">Belum ada kata yang dicari atau ditemukan.</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Database Kamus Kosong (Nanti diisi lewat tombol tambah)
+    let dictionary = [];
+
+    // Fungsi Menambah Kata
+    function addWord() {
+        let wordInput = document.getElementById('newWord');
+        let wordText = wordInput.value.trim().toLowerCase();
+
+        if (wordText === "") {
+            alert("Ketik kata terlebih dahulu!");
+            return;
+        }
+
+        // Cek apakah kata sudah ada di database
+        let isExist = dictionary.some(item => item.word === wordText);
+        if (isExist) {
+            alert("Kata ini sudah ada di kamus!");
+            return;
+        }
+
+        // Struktur data: kata, status masuk game (isPush), dan list jebakan (traps)
+        dictionary.push({
+            word: wordText,
+            isPush: false,
+            traps: []
+        });
+
+        wordInput.value = "";
+        alert(`Kata "${wordText}" berhasil ditambahkan ke kamus!`);
+        searchWords(); // Segarkan pencarian
+    }
+
+    // Fungsi Tambah Trap Spesifik untuk Kata Tertentu
+    function addTrap(index) {
+        let trapText = prompt("Aidan, masukkan kata jebakan (trap) baru untuk kata ini:");
+        if (trapText && trapText.trim() !== "") {
+            dictionary[index].traps.push(trapText.trim());
+            searchWords(); // Segarkan tampilan setelah ditambahkan
+        }
+    }
+
+    // Fungsi Ubah Status Push Index (Tombol Yes)
+    function togglePush(index) {
+        dictionary[index].isPush = true;
+        searchWords(); // Segarkan tampilan
+    }
+
+    // Fungsi Utama Pencarian (Awalan / Akhiran)
+    function searchWords() {
+        let searchKey = document.getElementById('searchKey').value.trim().toLowerCase();
+        let searchType = document.getElementById('searchType').value;
+        let container = document.getElementById('resultContainer');
+        
+        container.innerHTML = ""; // Bersihkan hasil lama
+
+        if (searchKey === "") {
+            container.innerHTML = '<p style="color: #bbb; font-style: italic;">Ketik huruf untuk mulai mencari kata.</p>';
+            return;
+        }
+
+        // Filter kata berdasarkan database
+        let filtered = dictionary.filter(item => {
+            if (searchType === "awalan") {
+                return item.word.startsWith(searchKey);
+            } else {
+                return item.word.endsWith(searchKey);
+            }
+        });
+
+        if (filtered.length === 0) {
+            container.innerHTML = '<p style="color: #ff7675;">Kata tidak ditemukan. Silakan tambah kata baru di atas.</p>';
+            return;
+        }
+
+        // Tampilkan setiap kata yang cocok
+        filtered.forEach(item => {
+            // Mencari indeks asli di database utama
+            let originalIndex = dictionary.findIndex(d => d.word === item.word);
+
+            let wordDiv = document.createElement('div');
+            wordDiv.className = `word-item ${item.isPush ? 'used' : ''}`;
+
+            // Konten untuk bagian Teks Kata dan Trap
+            let textSection = document.createElement('div');
+            textSection.innerHTML = `<strong>${item.word.toUpperCase()}</strong>`;
+            
+            if (item.traps.length > 0) {
+                let trapDiv = document.createElement('div');
+                trapDiv.className = 'trap-list';
+                trapDiv.innerHTML = `🪤 Trap: ${item.traps.join(', ')}`;
+                textSection.appendChild(trapDiv);
+            }
+
+            // Konten untuk Aksi Tombol (Yes / Tambah Trap)
+            let actionSection = document.createElement('div');
+
+            // Tombol Tambah Trap
+            let btnTrap = document.createElement('button');
+            btnTrap.className = 'btn-small';
+            btnTrap.innerText = '+ Trap';
+            btnTrap.onclick = () => addTrap(originalIndex);
+            actionSection.appendChild(btnTrap);
+
+            // Tombol Yes (Push Index)
+            let btnYes = document.createElement('button');
+            btnYes.className = `btn-small btn-yes ${item.isPush ? 'done' : ''}`;
+            btnYes.innerText = item.isPush ? '✓ Used' : 'Yes';
+            btnYes.disabled = item.isPush;
+            btnYes.onclick = () => togglePush(originalIndex);
+            actionSection.appendChild(btnYes);
+
+            wordDiv.appendChild(textSection);
+            wordDiv.appendChild(actionSection);
+            container.appendChild(wordDiv);
+        });
+    }
+</script>
+
+</body>
+</html>
