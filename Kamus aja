@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kamus Aidan</title>
+    <style>
+        /* Tema Gelap & Oranye mirip UI Samkat */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #1a1512;
+            color: #ebdcd0;
+            margin: 0;
+            padding: 12px;
+            width: 450px; /* Lebar optimal popup ekstensi */
+            box-sizing: border-box;
+        }
+
+        .container {
+            width: 100%;
+            background-color: #15100d;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            border: 1px solid #2d221a;
+            box-sizing: border-box;
+        }
+
+        /* Header Utama */
+        .header-area {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #2d221a;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+
+        h1 {
+            font-size: 22px;
+            color: #ffffff;
+            margin: 0;
+            font-weight: bold;
+        }
+
+        .author-tag {
+            font-size: 12px;
+            color: #ff843d;
+            font-weight: bold;
+        }
+
+        /* Navigasi Utama */
+        .main-nav {
+            display: flex;
+            border-bottom: 1px solid #2d221a;
+            margin-bottom: 15px;
+        }
+
+        .nav-btn {
+            flex: 1;
+            background: none;
+            border: none;
+            color: #8c7667;
+            padding: 10px 0;
+            font-size: 14px;
+            cursor: pointer;
+            font-weight: 600;
+            text-align: center;
+            transition: 0.2s;
+        }
+
+        .nav-btn.active {
+            color: #ff843d;
+            border-bottom: 3px solid #ff843d;
+        }
+
+        /* Panel Konten (Pencarian / Push Index / Kompe) */
+        .tab-panel {
+            display: none;
+        }
+
+        .tab-panel.active {
+            display: block;
+        }
+
+        /* Filter & Sub-tombol ala Samkat */
+        .filter-grid {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 12px;
+        }
+
+        .filter-btn {
+            flex: 1;
+            background-color: #241c17;
+            border: 1px solid #382c24;
+            color: #ebdcd0;
+            padding: 10px;
+            font-size: 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .filter-btn.active {
+            background-color: #ff843d;
+            color: #15100d;
+            border-color: #ff843d;
+        }
+
+        /* Input Form */
+        .input-group {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 12px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            background-color: #1e1713;
+            border: 1px solid #382c24;
+            color: #ffffff;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #ff843d;
+        }
+
+        .btn-action {
+            background-color: #ff843d;
+            color: #15100d;
+            border: none;
+            padding: 10px 16px;
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .btn-action:hover {
+            background-color: #e27230;
+        }
+
+        /* Info Tambahan */
+        .info-text {
+            font-size: 12px;
+            color: #8c7667;
+            margin-top: -6px;
+            margin-bottom: 12px;
+        }
+
+        /* Tampilan Hasil Kata */
+        .word-list {
+            max-height: 250px;
+            overflow-y: auto;
+            border-top: 1px solid #2d221a;
+            padding-top: 8px;
+        }
+
+        .word-card {
+            background-color: #1a1411;
+            border: 1px solid #281f19;
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .word-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #ffffff;
+        }
+
+        .word-meta {
+            font-size: 11px;
+            color: #8c7667;
+            margin-top: 3px;
+        }
+
+        .trap-indicator {
+            display: inline-block;
+            background-color: #3d1c16;
+            color: #ff6b6b;
+            border: 1px solid #5c241d;
+            padding: 1px 6px;
+            border-radius: 4px;
+            font-size: 11px;
+            margin-right: 4px;
+            margin-top: 4px;
+        }
+
+        /* Tombol di List Kata */
+        .card-actions {
+            display: flex;
+            gap: 6px;
+        }
+
+        .btn-small {
+            background-color: #241c17;
+            border: 1px solid #382c24;
+            color: #ebdcd0;
+            padding: 6px 10px;
+            font-size: 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .btn-orange-small {
+            background-color: #ff843d;
+            color: #15100d;
+            border: none;
+            padding: 6px 12px;
+            font-size: 12px;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- Top Header -->
+    <div class="header-area">
+        <h1>Kamus Aidan</h1>
+        <div class="author-tag">by aidanmahran</div>
+    </div>
+
+    <!-- Navigasi Menu Utama -->
+    <div class="main-nav">
+        <button id="navPencarian" class="nav-btn active" onclick="changeTab('pencarian')">Pencarian</button>
+        <button id="navPushIndex" class="nav-btn" onclick="changeTab('pushindex')">Push Index</button>
+        <button id="navKompe" class="nav-btn" onclick="changeTab('kompe')">Kompe</button>
+    </div>
+
+    <!-- ================= TAB PENCARIAN ================= -->
+    <div id="panelPencarian" class="tab-panel active">
+        <div class="filter-grid">
+            <button id="filterAwalan" class="filter-btn active" onclick="setSearchType('awalan')">A--<br>AWALAN</button>
+            <button id="filterAkhiran" class="filter-btn" onclick="setSearchType('akhiran')">--Z<br>AKHIRAN</button>
+        </div>
+        
+        <div class="input-group">
+            <input type="text" id="searchBar" placeholder="Ketik kata yang dicari..." oninput="renderList()">
+        </div>
+
+        <div class="word-list" id="listPencarian">
+            <!-- Hasil pencarian kata muncul di sini -->
+        </div>
+    </div>
+
+    <!-- ================= TAB PUSH INDEX ================= -->
+    <div id="panelPushIndex" class="tab-panel">
+        <div class="input-group">
+            <input type="text" id="inputPushKata" placeholder="Tambah kata ke database kosong...">
+            <button class="btn-action" onclick="addWord()">Tambah Kata</button>
+        </div>
+        <div class="info-text">Silakan tambah kata secara manual untuk mengisi database kamus game kamu.</div>
+        
+        <div class="word-list" id="listPushIndex">
+            <!-- List kata di database yang belum di-push game -->
+        </div>
+    </div>
+
+    <!-- ================= TAB KOMPE ================= -->
+    <div id="panelKompe" class="tab-panel">
+        <div class="filter-grid">
+            <button id="modeNormalBtn" class="filter-btn active" onclick="setKompeMode('normal')">Mode Normal</button>
+            <button id="modeBrutalBtn" class="filter-btn" onclick="setKompeMode('brutal')">Mode Brutal</button>
+        </div>
+        
+        <div class="filter-btn" style="background-color:#1e1713; border: 1px dashed #ff843d; text-align: left; cursor: default; margin-bottom: 12px; color: #ff843d;">
+            <strong>[Grup Pembuatan Trap: <span id="currentGrupLabel">Mode Normal</span>]</strong><br>
+            <span style="font-size: 11px; color:#8c7667;">Setiap trap baru yang ditambahkan di bawah otomatis masuk kategori grup ini.</span>
+        </div>
+
+        <div class="word-list" id="listKompe">
+            <!-- List pengelolaan trap kata -->
+        </div>
+    </div>
+</div>
+
+<script>
+    // Database Kamus Utama (Mulai dari Kosong)
+    let database = [];
+    
+    // Status navigasi dan filter aktif saat ini
+    let activeTab = 'pencarian';
+    let currentSearchType = 'awalan';
+    let currentKompeMode = 'normal';
+
+    // 1. Fungsi Ganti Tab Navigasi Utama
+    function changeTab(tabName) {
+        activeTab = tabName;
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+
+        if(tabName === 'pencarian') {
+            document.getElementById('navPencarian').classList.add('active');
+            document.getElementById('panelPencarian').classList.add('active');
+        } else if(tabName === 'pushindex') {
+            document.getElementById('navPushIndex').classList.add('active');
+            document.getElementById('panelPushIndex').classList.add('active');
+        } else if(tabName === 'kompe') {
+            document.getElementById('navKompe').classList.add('active');
+            document.getElementById('panelKompe').classList.add('active');
+        }
+        renderList();
+    }
+
+    // 2. Fungsi Ubah Tipe Pencarian (Awalan / Akhiran)
+    function setSearchType(type) {
+        currentSearchType = type;
+        document.getElementById('filterAwalan').classList.remove('active');
+        document.getElementById('filterAkhiran').classList.remove('active');
+
